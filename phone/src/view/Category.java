@@ -1,554 +1,591 @@
 package view;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.border.LineBorder;
-import javax.swing.table.DefaultTableModel;
-
 import java.awt.GridBagLayout;
 import java.awt.Image;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-import java.awt.BorderLayout;
-import javax.swing.SwingConstants;
-import javax.swing.JComboBox;
-import java.awt.TextArea;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.JTable;
+import javax.swing.JScrollPane;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
+
+import bus.CategoryBUS;
+import bus.ProductBUS;
+import dao.CategoryDAO;
+import dto.CategoryDTO;
+import dto.ProductDTO;
+import service.Validation;
+
 import javax.swing.JButton;
-import javax.swing.BoxLayout;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import javax.swing.border.MatteBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.border.LineBorder;
 import javax.swing.ImageIcon;
 
-import java.awt.FlowLayout;
-
-public class Category extends JPanel {
+public class Category extends JPanel implements MouseListener, KeyListener{
 
 	private static final long serialVersionUID = 1L;
-	private JTable receiptTable;
-	private JTextField textField;
-	private JTextField textField_1;
-	private JTextField textField_2;
+	private JTextField cateFindTxt;
+	private JTable table;
+	private JTextField cateNameTxt;
 	private JTextField textField_3;
-	private JTextField textField_4;
-	private JTextField textField_5;
-	private JTextField textField_6;
-	private JTextField textField_7;
-	private JTextField textField_9;
-	private JTextField textField_10;
-	private JTextField textField_11;
-	private JTextField textField_12;
-	private JTextField textField_13;
-	private JTextField textField_14;
-	private JTextField textField_8;
-	private JTextField textField_15;
+	private JTable table_1;
+	private DefaultTableModel categoryModel, productModel;
+	private JButton btnAddCate;
+	private JButton btnEditCate;
+	private JButton btnDeleteCate;
+	private JButton btnRefreshCate;
+	CategoryBUS categoryBUS = new CategoryBUS();
+	ArrayList<CategoryDTO> listCategory = categoryBUS.getALL();
+	ProductBUS productBUS = new ProductBUS();
+	ArrayList<ProductDTO> listProduct = productBUS.getALL();
+	private JTextField cateIdTxt;
 
 	/**
 	 * Create the panel.
 	 */
 	public Category() {
+		initComponent();
+		loadDataTable(listCategory);
+		loadDataProductTable(listProduct);
+	}
+
+	public void initComponent() {
+		Color myColor = new Color(34, 33, 75);
+		Color backGroundColor = Color.white;
+		Color borderColor = myColor;
+		Color textColor = myColor;
+		Color buttonColor = myColor;
+		setBackground(backGroundColor);
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[]{0, 0, 0};
-		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0};
-		gridBagLayout.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
+		gridBagLayout.columnWidths = new int[] {600, 400};
+		gridBagLayout.rowHeights = new int[] {400, 600};
+		gridBagLayout.columnWeights = new double[]{1.0, 1.0};
+		gridBagLayout.rowWeights = new double[]{1.0, 1.0};
 		setLayout(gridBagLayout);
-
 		
-		//Receipt table area
-		JPanel panelReceiptTable = new JPanel();
-		panelReceiptTable.setBorder(new LineBorder(Color.LIGHT_GRAY));
-
-		GridBagConstraints gbc_panelReceiptTable = new GridBagConstraints();
-		gbc_panelReceiptTable.weighty = 1.0;
-		gbc_panelReceiptTable.weightx = 2.0;
-		gbc_panelReceiptTable.insets = new Insets(20, 10, 5, 5);
-		gbc_panelReceiptTable.fill = GridBagConstraints.BOTH;
-		gbc_panelReceiptTable.gridx = 0;
-		gbc_panelReceiptTable.gridy = 0;
-		add(panelReceiptTable, gbc_panelReceiptTable);
-		GridBagLayout gbl_panelReceiptTable = new GridBagLayout();
-		gbl_panelReceiptTable.columnWidths = new int[]{476, 0, 0};
-		gbl_panelReceiptTable.rowHeights = new int[]{14, 0, 323, 0};
-		gbl_panelReceiptTable.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
-		gbl_panelReceiptTable.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
-		panelReceiptTable.setLayout(gbl_panelReceiptTable);
+		JPanel panelCategoryTable = new JPanel();
+		panelCategoryTable.setBackground(Color.WHITE);
+		panelCategoryTable.setBorder(new MatteBorder(0, 0, 0, 2, borderColor));
+		GridBagConstraints gbc_panelCategoryTable = new GridBagConstraints();
+		gbc_panelCategoryTable.weightx = 0.7;
+		gbc_panelCategoryTable.insets = new Insets(20, 20, 5, 10);
+		gbc_panelCategoryTable.fill = GridBagConstraints.BOTH;
+		gbc_panelCategoryTable.gridx = 0;
+		gbc_panelCategoryTable.gridy = 0;
+		add(panelCategoryTable, gbc_panelCategoryTable);
+		GridBagLayout gbl_panelCategoryTable = new GridBagLayout();
+		gbl_panelCategoryTable.columnWidths = new int[]{0, 0, 0, 0};
+		gbl_panelCategoryTable.rowHeights = new int[]{0, 0, 0, 0};
+		gbl_panelCategoryTable.columnWeights = new double[]{1.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_panelCategoryTable.rowWeights = new double[]{0.0, 0.0, 1.0, Double.MIN_VALUE};
+		panelCategoryTable.setLayout(gbl_panelCategoryTable);
 		
-
-		 
-		 JLabel lblNewLabel = new JLabel("Thông Tin Phiếu Nhập");
-		 lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		 GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
-		 gbc_lblNewLabel.gridwidth = 2;
-		 gbc_lblNewLabel.anchor = GridBagConstraints.NORTH;
-		 gbc_lblNewLabel.fill = GridBagConstraints.HORIZONTAL;
-		 gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
-		 gbc_lblNewLabel.gridx = 0;
-		 gbc_lblNewLabel.gridy = 0;
-		 panelReceiptTable.add(lblNewLabel, gbc_lblNewLabel);
-		 
-		 textField_8 = new JTextField();
-		 GridBagConstraints gbc_textField_8 = new GridBagConstraints();
-		 gbc_textField_8.insets = new Insets(0, 5, 5, 5);
-		 gbc_textField_8.fill = GridBagConstraints.HORIZONTAL;
-		 gbc_textField_8.gridx = 0;
-		 gbc_textField_8.gridy = 1;
-		 panelReceiptTable.add(textField_8, gbc_textField_8);
-		 textField_8.setColumns(10);
-		 
-		 JButton btnNewButton_6 = new JButton("Tìm Kiếm");
-		 GridBagConstraints gbc_btnNewButton_6 = new GridBagConstraints();
-		 gbc_btnNewButton_6.insets = new Insets(0, 0, 5, 5);
-		 gbc_btnNewButton_6.gridx = 1;
-		 gbc_btnNewButton_6.gridy = 1;
-		 panelReceiptTable.add(btnNewButton_6, gbc_btnNewButton_6);
-	     
-		 GridBagConstraints gbc_scrollPaneReceiptTable = new GridBagConstraints();
-		 gbc_scrollPaneReceiptTable.weighty = 1.0;
-		 gbc_scrollPaneReceiptTable.weightx = 1.0;
-		 gbc_scrollPaneReceiptTable.gridwidth = 2;
-		 gbc_scrollPaneReceiptTable.insets = new Insets(0, 5, 10, 5);
-		 gbc_scrollPaneReceiptTable.fill = GridBagConstraints.BOTH;
-		 gbc_scrollPaneReceiptTable.gridx = 0;
-		 gbc_scrollPaneReceiptTable.gridy = 2;
+		JLabel lblNewLabel = new JLabel("Thông Tin Loại SP");
+		lblNewLabel.setFont(new Font("Times New Roman", Font.BOLD, 15));
+		lblNewLabel.setForeground(textColor);
+		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
+		gbc_lblNewLabel.weighty = 0.1;
+		gbc_lblNewLabel.weightx = 1.0;
+		gbc_lblNewLabel.gridwidth = 3;
+		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel.gridx = 0;
+		gbc_lblNewLabel.gridy = 0;
+		panelCategoryTable.add(lblNewLabel, gbc_lblNewLabel);
 		
-
-	    String[] columnNames = {"STT", "Mã Phiếu Nhập", "Nhân Viên Nhập", "Tên Nhà Phân Phối", "Thành Tiền", "Ngày Lập", "Chú Thích"};
+		cateFindTxt = new JTextField();
+		cateFindTxt.setBorder(new LineBorder(borderColor, 2, true));
+		cateFindTxt.setColumns(10);
+		cateFindTxt.addKeyListener(this);
+		GridBagConstraints gbc_cateFindTxt = new GridBagConstraints();
+		gbc_cateFindTxt.ipady = 5;
+		gbc_cateFindTxt.weighty = 0.1;
+		gbc_cateFindTxt.weightx = 0.8;
+		gbc_cateFindTxt.insets = new Insets(0, 5, 5, 5);
+		gbc_cateFindTxt.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cateFindTxt.gridx = 0;
+		gbc_cateFindTxt.gridy = 1;
+		panelCategoryTable.add(cateFindTxt, gbc_cateFindTxt);
+		
+		JButton btnFindCate = new JButton("Xuất Excel");
+        Image iconExcel = new ImageIcon("Assets/Icon/excel.png").getImage();
+        iconExcel = iconExcel.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+        btnFindCate.setIcon(new ImageIcon(iconExcel));
+        btnFindCate.setBorder(new LineBorder(borderColor, 2, true));
+		btnFindCate.setForeground(Color.white);
+		btnFindCate.setBackground(buttonColor);
+		btnFindCate.addMouseListener(this);
+		
+		GridBagConstraints gbc_btnFindCate = new GridBagConstraints();
+		gbc_btnFindCate.weighty = 0.1;
+		gbc_btnFindCate.weightx = 0.1;
+		gbc_btnFindCate.insets = new Insets(0, 0, 5, 5);
+		gbc_btnFindCate.gridx = 1;
+		gbc_btnFindCate.gridy = 1;
+		panelCategoryTable.add(btnFindCate, gbc_btnFindCate);
+		
+		JButton btnFindCate_1 = new JButton("Nhập Excel");
+		iconExcel = iconExcel.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+        btnFindCate_1.setIcon(new ImageIcon(iconExcel));
+        btnFindCate_1.setBorder(new LineBorder(borderColor, 2, true));
+        btnFindCate_1.setForeground(Color.white);
+        btnFindCate_1.setBackground(buttonColor);
+        btnFindCate_1.addMouseListener(this);
+		
+		
+		GridBagConstraints gbc_btnFindCate_1 = new GridBagConstraints();
+		gbc_btnFindCate_1.weighty = 0.1;
+		gbc_btnFindCate_1.weightx = 0.1;
+		gbc_btnFindCate_1.insets = new Insets(0, 0, 5, 0);
+		gbc_btnFindCate_1.gridx = 2;
+		gbc_btnFindCate_1.gridy = 1;
+		panelCategoryTable.add(btnFindCate_1, gbc_btnFindCate_1);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBorder(new LineBorder(borderColor, 2));
+		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
+		gbc_scrollPane.insets = new Insets(0, 5, 0, 5);
+		gbc_scrollPane.weighty = 0.8;
+		gbc_scrollPane.weightx = 1.0;
+		gbc_scrollPane.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane.gridwidth = 3;
+		gbc_scrollPane.gridx = 0;
+		gbc_scrollPane.gridy = 2;
+		panelCategoryTable.add(scrollPane, gbc_scrollPane);
+		
+	     String[] columnNames = {"Mã Loại SP", "Loại SP"};
 	     Object[][] data = {
-	         {"1", "PN001", "Nhân Viên 1", "Nhà Phân Phối 1", "3.480.000.000 đ", "2019-11-27", ""},
-	         {"2", "PN002", "Nhân Viên 2", "Nhà Phân Phối 2", "3.480.000.000 đ", "2019-11-27", ""},
+
 	     };
 	     
-	     DefaultTableModel modelReceipt = new DefaultTableModel(data, columnNames) {
-	            @Override
-	            public boolean isCellEditable(int row, int column) {
-	                return false;
-	            }
-	        };
-        receiptTable = new JTable(modelReceipt);
-	    receiptTable.getTableHeader().setReorderingAllowed(false);
-	    
-		JScrollPane scrollPaneReceiptTable = new JScrollPane(receiptTable);		 
-		panelReceiptTable.add(scrollPaneReceiptTable, gbc_scrollPaneReceiptTable);
-
-	    
-	    
-		JPanel panelInputRecep = new JPanel();
+//	     DefaultTableModel model = new DefaultTableModel(data, columnNames) {
+//	            @Override
+//	            public boolean isCellEditable(int row, int column) {
+//	                return false;
+//	            }
+//	        };
+	   categoryModel = new DefaultTableModel();
+	   categoryModel = new DefaultTableModel(data, columnNames) {
+           @Override
+           public boolean isCellEditable(int row, int column) {
+               return false;
+           }
+       };
+	   categoryModel.setColumnIdentifiers(columnNames);
+	   
+       table = new JTable(categoryModel);
+       table.addMouseListener(this);
+       DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+       centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+       TableColumnModel columnModel = table.getColumnModel();
+       columnModel.getColumn(0).setCellRenderer(centerRenderer);
+       columnModel.getColumn(1).setCellRenderer(centerRenderer);
+       table.setBorder(new LineBorder(borderColor, 2, false));
+       table.getTableHeader().setBorder(new LineBorder(borderColor, 2, false));
+       table.getTableHeader().setReorderingAllowed(false);
+       table.getTableHeader().setBackground(borderColor);
+       table.getTableHeader().setForeground(Color.white);
 		
-		JPanel panelReceiptInfo = new JPanel();
-		GridBagConstraints gbc_panelReceiptInfo = new GridBagConstraints();
-
-		gbc_panelReceiptInfo.weightx = 1.0;
-		gbc_panelReceiptInfo.insets = new Insets(20, 5, 5, 10);
-		gbc_panelReceiptInfo.fill = GridBagConstraints.BOTH;
-		gbc_panelReceiptInfo.gridx = 1;
-		gbc_panelReceiptInfo.gridy = 0;
-		add(panelReceiptInfo, gbc_panelReceiptInfo);
-		panelReceiptInfo.setLayout(new BoxLayout(panelReceiptInfo, BoxLayout.Y_AXIS));
 		
-		JPanel panelReceiptInput = new JPanel();
-		panelReceiptInput.setBorder(new LineBorder(Color.LIGHT_GRAY));
-
-		panelReceiptInfo.add(panelReceiptInput);
-		GridBagLayout gbl_panelReceiptInput = new GridBagLayout();
-		gbl_panelReceiptInput.columnWidths = new int[]{0, 0, 0, 0};
-		gbl_panelReceiptInput.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_panelReceiptInput.columnWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
-		gbl_panelReceiptInput.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		panelReceiptInput.setLayout(gbl_panelReceiptInput);
 		
-		JLabel lblNewLabel_1 = new JLabel("Thông Tin Phiếu Nhập");
+		scrollPane.setViewportView(table);
+		
+		JPanel panelCategoryInfo = new JPanel();
+		panelCategoryInfo.setBackground(Color.WHITE);
+		GridBagConstraints gbc_panelCategoryInfo = new GridBagConstraints();
+		gbc_panelCategoryInfo.weightx = 0.3;
+		gbc_panelCategoryInfo.insets = new Insets(20, 5, 5, 10);
+		gbc_panelCategoryInfo.fill = GridBagConstraints.BOTH;
+		gbc_panelCategoryInfo.gridx = 1;
+		gbc_panelCategoryInfo.gridy = 0;
+		add(panelCategoryInfo, gbc_panelCategoryInfo);
+		GridBagLayout gbl_panelCategoryInfo = new GridBagLayout();
+		gbl_panelCategoryInfo.columnWidths = new int[] {50, 200};
+		gbl_panelCategoryInfo.rowHeights = new int[]{0, 0, 0, 0, 0};
+		gbl_panelCategoryInfo.columnWeights = new double[]{1.0, 1.0};
+		gbl_panelCategoryInfo.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		panelCategoryInfo.setLayout(gbl_panelCategoryInfo);
+		
+		JLabel lblNewLabel_1 = new JLabel("Thông Tin Loại SP");
+		lblNewLabel_1.setFont(new Font("Times New Roman", Font.BOLD, 15));
+		lblNewLabel_1.setForeground(textColor);
 		GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
-		gbc_lblNewLabel_1.gridwidth = 3;
+		gbc_lblNewLabel_1.weighty = 0.1;
+		gbc_lblNewLabel_1.weightx = 1.0;
+		gbc_lblNewLabel_1.gridwidth = 2;
 		gbc_lblNewLabel_1.insets = new Insets(0, 0, 5, 0);
 		gbc_lblNewLabel_1.gridx = 0;
 		gbc_lblNewLabel_1.gridy = 0;
-		panelReceiptInput.add(lblNewLabel_1, gbc_lblNewLabel_1);
+		panelCategoryInfo.add(lblNewLabel_1, gbc_lblNewLabel_1);
 		
-		JLabel lblNewLabel_2 = new JLabel("Tổng Vốn:");
+		JLabel lblNewLabel_2 = new JLabel("Mã Loại SP:");
+		lblNewLabel_2.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		GridBagConstraints gbc_lblNewLabel_2 = new GridBagConstraints();
+		gbc_lblNewLabel_2.weighty = 0.3;
+		gbc_lblNewLabel_2.weightx = 0.1;
 		gbc_lblNewLabel_2.insets = new Insets(0, 0, 5, 5);
 		gbc_lblNewLabel_2.gridx = 0;
 		gbc_lblNewLabel_2.gridy = 1;
-		panelReceiptInput.add(lblNewLabel_2, gbc_lblNewLabel_2);
+		panelCategoryInfo.add(lblNewLabel_2, gbc_lblNewLabel_2);
 		
-		textField_7 = new JTextField();
-		GridBagConstraints gbc_textField_7 = new GridBagConstraints();
-		gbc_textField_7.gridwidth = 2;
-		gbc_textField_7.insets = new Insets(0, 0, 5, 0);
-		gbc_textField_7.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField_7.gridx = 1;
-		gbc_textField_7.gridy = 1;
-		panelReceiptInput.add(textField_7, gbc_textField_7);
-		textField_7.setColumns(10);
+		cateIdTxt = new JTextField();
+		cateIdTxt.setColumns(10);
+		cateIdTxt.setEditable(false);
+		cateIdTxt.setFocusable(false);
+		GridBagConstraints gbc_cateIdTxt = new GridBagConstraints();
+		gbc_cateIdTxt.insets = new Insets(0, 0, 5, 0);
+		gbc_cateIdTxt.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cateIdTxt.gridx = 1;
+		gbc_cateIdTxt.gridy = 1;
+		panelCategoryInfo.add(cateIdTxt, gbc_cateIdTxt);
 		
-		JLabel lblNewLabel_3 = new JLabel("Mã PN:");
+		JLabel lblNewLabel_3 = new JLabel("Tên SP:");
+		lblNewLabel_3.setFont(new Font("Times New Roman", Font.BOLD, 12));
 		GridBagConstraints gbc_lblNewLabel_3 = new GridBagConstraints();
-		gbc_lblNewLabel_3.anchor = GridBagConstraints.EAST;
+		gbc_lblNewLabel_3.weighty = 0.3;
+		gbc_lblNewLabel_3.weightx = 0.1;
 		gbc_lblNewLabel_3.insets = new Insets(0, 0, 5, 5);
 		gbc_lblNewLabel_3.gridx = 0;
 		gbc_lblNewLabel_3.gridy = 2;
-		panelReceiptInput.add(lblNewLabel_3, gbc_lblNewLabel_3);
+		panelCategoryInfo.add(lblNewLabel_3, gbc_lblNewLabel_3);
 		
-		JComboBox comboBox_3 = new JComboBox();
-		GridBagConstraints gbc_comboBox_3 = new GridBagConstraints();
-		gbc_comboBox_3.gridwidth = 2;
-		gbc_comboBox_3.insets = new Insets(0, 0, 5, 5);
-		gbc_comboBox_3.fill = GridBagConstraints.HORIZONTAL;
-		gbc_comboBox_3.gridx = 1;
-		gbc_comboBox_3.gridy = 2;
-		panelReceiptInput.add(comboBox_3, gbc_comboBox_3);
+		cateNameTxt = new JTextField();
+		cateNameTxt.setBorder(new LineBorder(borderColor, 2, true));
+		GridBagConstraints gbc_cateNameTxt = new GridBagConstraints();
+		gbc_cateNameTxt.ipady = 5;
+		gbc_cateNameTxt.weightx = 0.9;
+		gbc_cateNameTxt.insets = new Insets(0, 0, 5, 0);
+		gbc_cateNameTxt.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cateNameTxt.gridx = 1;
+		gbc_cateNameTxt.gridy = 2;
+		panelCategoryInfo.add(cateNameTxt, gbc_cateNameTxt);
+		cateNameTxt.setColumns(10);
 		
-		JLabel lblNewLabel_4 = new JLabel("Nhân Viên:");
+		JPanel panel_3 = new JPanel();
+		panel_3.setBackground(Color.WHITE);
+		GridBagConstraints gbc_panel_3 = new GridBagConstraints();
+		gbc_panel_3.fill = GridBagConstraints.BOTH;
+		gbc_panel_3.weightx = 1.0;
+		gbc_panel_3.weighty = 0.3;
+		gbc_panel_3.gridwidth = 2;
+		gbc_panel_3.insets = new Insets(10, 5, 10, 0);
+		gbc_panel_3.gridx = 0;
+		gbc_panel_3.gridy = 3;
+		panelCategoryInfo.add(panel_3, gbc_panel_3);
+		panel_3.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		
+		btnAddCate = new JButton("Thêm");
+     	btnAddCate.setFont(new Font("Times New Roman", Font.BOLD, 12));
+     	btnAddCate.setBorder(new LineBorder(borderColor, 2, true));
+     	Image iconAdd = new ImageIcon("Assets/Icon/add.png").getImage();
+     	iconAdd = iconAdd.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+		btnAddCate.setPreferredSize(new Dimension(100, 40));
+		btnAddCate.setBackground(buttonColor);
+		btnAddCate.setForeground(Color.white);
+		btnAddCate.setFocusPainted(false);
+		btnAddCate.setIcon(new ImageIcon(iconAdd));
+		btnAddCate.addMouseListener(this);
+		panel_3.add(btnAddCate);
+		btnEditCate = new JButton("Sửa");
+		btnEditCate.setFont(new Font("Times New Roman", Font.BOLD, 12));
+		btnEditCate.setBorder(new LineBorder(borderColor, 2, true));
+     	Image iconEdit = new ImageIcon("Assets/Icon/edit.png").getImage();
+     	iconEdit = iconEdit.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+     	btnEditCate.setPreferredSize(new Dimension(100, 40));
+     	btnEditCate.setBackground(buttonColor);
+     	btnEditCate.setForeground(Color.white);
+     	btnEditCate.setFocusPainted(false);
+     	btnEditCate.setIcon(new ImageIcon(iconEdit));
+     	btnEditCate.addMouseListener(this);
+		panel_3.add(btnEditCate);
+		
+		btnDeleteCate = new JButton("Xóa");
+		btnDeleteCate.setFont(new Font("Times New Roman", Font.BOLD, 12));
+		btnDeleteCate.setBorder(new LineBorder(borderColor, 2, true));
+     	Image iconDelete = new ImageIcon("Assets/Icon/delete.png").getImage();
+     	iconDelete = iconDelete.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+     	btnDeleteCate.setPreferredSize(new Dimension(100, 40));
+     	btnDeleteCate.setBackground(buttonColor);
+     	btnDeleteCate.setForeground(Color.white);
+     	btnDeleteCate.setFocusPainted(false);
+     	btnDeleteCate.setIcon(new ImageIcon(iconDelete));
+     	btnDeleteCate.addMouseListener(this);
+		panel_3.add(btnDeleteCate);
+		
+		btnRefreshCate = new JButton("Mới");
+		btnRefreshCate.setFont(new Font("Times New Roman", Font.BOLD, 12));
+		btnRefreshCate.setBorder(new LineBorder(borderColor, 2, true));
+     	Image iconRefresh = new ImageIcon("Assets/Icon/clear.png").getImage();
+     	iconRefresh = iconRefresh.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+     	btnRefreshCate.setPreferredSize(new Dimension(100, 40));
+     	btnRefreshCate.setBackground(buttonColor);
+     	btnRefreshCate.setForeground(Color.white);
+     	btnRefreshCate.setFocusPainted(false);
+     	btnRefreshCate.setIcon(new ImageIcon(iconRefresh));
+     	btnRefreshCate.addMouseListener(this);
+		panel_3.add(btnRefreshCate);
+		
+		JPanel panelProductTable = new JPanel();
+		panelProductTable.setBackground(Color.WHITE);
+		panelProductTable.setBorder(new MatteBorder(2, 0, 0, 0, borderColor));
+		GridBagConstraints gbc_panelProductTable = new GridBagConstraints();
+		gbc_panelProductTable.weightx = 1.0;
+		gbc_panelProductTable.gridwidth = 2;
+		gbc_panelProductTable.insets = new Insets(5, 20, 5, 10);
+		gbc_panelProductTable.fill = GridBagConstraints.BOTH;
+		gbc_panelProductTable.gridx = 0;
+		gbc_panelProductTable.gridy = 1;
+		add(panelProductTable, gbc_panelProductTable);
+		GridBagLayout gbl_panelProductTable = new GridBagLayout();
+		gbl_panelProductTable.columnWidths = new int[]{0, 0};
+		gbl_panelProductTable.rowHeights = new int[]{0, 0, 0, 0};
+		gbl_panelProductTable.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_panelProductTable.rowWeights = new double[]{0.0, 0.0, 1.0, Double.MIN_VALUE};
+		panelProductTable.setLayout(gbl_panelProductTable);
+		
+		JLabel lblNewLabel_4 = new JLabel("Thông Tin Sản Phẩm");
+		lblNewLabel_4.setForeground(textColor);
+		lblNewLabel_4.setFont(new Font("Times New Roman", Font.BOLD, 15));
 		GridBagConstraints gbc_lblNewLabel_4 = new GridBagConstraints();
-		gbc_lblNewLabel_4.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_4.weighty = 0.1;
+		gbc_lblNewLabel_4.weightx = 1.0;
+		gbc_lblNewLabel_4.insets = new Insets(0, 0, 5, 0);
 		gbc_lblNewLabel_4.gridx = 0;
-		gbc_lblNewLabel_4.gridy = 3;
-		panelReceiptInput.add(lblNewLabel_4, gbc_lblNewLabel_4);
+		gbc_lblNewLabel_4.gridy = 0;
+		panelProductTable.add(lblNewLabel_4, gbc_lblNewLabel_4);
 		
-		JComboBox comboBox = new JComboBox();
-		GridBagConstraints gbc_comboBox = new GridBagConstraints();
-		gbc_comboBox.gridwidth = 2;
-		gbc_comboBox.insets = new Insets(0, 0, 5, 0);
-		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
-		gbc_comboBox.gridx = 1;
-		gbc_comboBox.gridy = 3;
-		panelReceiptInput.add(comboBox, gbc_comboBox);
+		textField_3 = new JTextField();
+		textField_3.addKeyListener(this);
+		textField_3.setBorder(new LineBorder(borderColor, 2, true));
+		GridBagConstraints gbc_textField_3 = new GridBagConstraints();
+		gbc_textField_3.ipady = 5;
+		gbc_textField_3.weighty = 0.1;
+		gbc_textField_3.weightx = 1.0;
+		gbc_textField_3.insets = new Insets(0, 0, 5, 0);
+		gbc_textField_3.fill = GridBagConstraints.HORIZONTAL;
+		gbc_textField_3.gridx = 0;
+		gbc_textField_3.gridy = 1;
+		panelProductTable.add(textField_3, gbc_textField_3);
+		textField_3.setColumns(10);
 		
-		JLabel lblNewLabel_5 = new JLabel("Ngày Nhập:");
-		GridBagConstraints gbc_lblNewLabel_5 = new GridBagConstraints();
-		gbc_lblNewLabel_5.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_5.gridx = 0;
-		gbc_lblNewLabel_5.gridy = 4;
-		panelReceiptInput.add(lblNewLabel_5, gbc_lblNewLabel_5);
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBorder(new LineBorder(borderColor, 2, true));
+		GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
+		gbc_scrollPane_1.weighty = 0.8;
+		gbc_scrollPane_1.weightx = 1.0;
+		gbc_scrollPane_1.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane_1.gridx = 0;
+		gbc_scrollPane_1.gridy = 2;
+		panelProductTable.add(scrollPane_1, gbc_scrollPane_1);
 		
-		textField_10 = new JTextField();
-		GridBagConstraints gbc_textField_10 = new GridBagConstraints();
-		gbc_textField_10.insets = new Insets(0, 0, 5, 5);
-		gbc_textField_10.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField_10.gridx = 1;
-		gbc_textField_10.gridy = 4;
-		panelReceiptInput.add(textField_10, gbc_textField_10);
-		textField_10.setColumns(10);
-		
-		JButton btnNewButton = new JButton("TIme");
-		GridBagConstraints gbc_btnNewButton = new GridBagConstraints();
-		gbc_btnNewButton.insets = new Insets(0, 0, 5, 0);
-		gbc_btnNewButton.gridx = 2;
-		gbc_btnNewButton.gridy = 4;
-		panelReceiptInput.add(btnNewButton, gbc_btnNewButton);
-		
-		JLabel lblNewLabel_6 = new JLabel("Nhà PP:");
-		GridBagConstraints gbc_lblNewLabel_6 = new GridBagConstraints();
-		gbc_lblNewLabel_6.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_6.gridx = 0;
-		gbc_lblNewLabel_6.gridy = 5;
-		panelReceiptInput.add(lblNewLabel_6, gbc_lblNewLabel_6);
-		
-		JComboBox comboBox_1 = new JComboBox();
-		GridBagConstraints gbc_comboBox_1 = new GridBagConstraints();
-		gbc_comboBox_1.gridwidth = 2;
-		gbc_comboBox_1.insets = new Insets(0, 0, 5, 0);
-		gbc_comboBox_1.fill = GridBagConstraints.HORIZONTAL;
-		gbc_comboBox_1.gridx = 1;
-		gbc_comboBox_1.gridy = 5;
-		panelReceiptInput.add(comboBox_1, gbc_comboBox_1);
-		
-		JLabel lblNewLabel_7 = new JLabel("Tổng Tiền:");
-		GridBagConstraints gbc_lblNewLabel_7 = new GridBagConstraints();
-		gbc_lblNewLabel_7.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_7.gridx = 0;
-		gbc_lblNewLabel_7.gridy = 6;
-		panelReceiptInput.add(lblNewLabel_7, gbc_lblNewLabel_7);
-		
-		textField_9 = new JTextField();
-		GridBagConstraints gbc_textField_9 = new GridBagConstraints();
-		gbc_textField_9.gridwidth = 2;
-		gbc_textField_9.insets = new Insets(0, 0, 5, 0);
-		gbc_textField_9.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField_9.gridx = 1;
-		gbc_textField_9.gridy = 6;
-		panelReceiptInput.add(textField_9, gbc_textField_9);
-		textField_9.setColumns(10);
-		
-		JLabel lblNewLabel_8 = new JLabel("Chú Thích:");
-		GridBagConstraints gbc_lblNewLabel_8 = new GridBagConstraints();
-		gbc_lblNewLabel_8.anchor = GridBagConstraints.NORTH;
-		gbc_lblNewLabel_8.insets = new Insets(0, 0, 0, 5);
-		gbc_lblNewLabel_8.gridx = 0;
-		gbc_lblNewLabel_8.gridy = 7;
-		panelReceiptInput.add(lblNewLabel_8, gbc_lblNewLabel_8);
-		
-		TextArea textArea = new TextArea();
-		textArea.setColumns(1);
-		textArea.setRows(5);
-		GridBagConstraints gbc_textArea = new GridBagConstraints();
-		gbc_textArea.fill = GridBagConstraints.BOTH;
-		gbc_textArea.gridwidth = 2;
-		gbc_textArea.gridx = 1;
-		gbc_textArea.gridy = 7;
-		panelReceiptInput.add(textArea, gbc_textArea);
-		
-		JPanel panelReceiptFeature = new JPanel();
-		panelReceiptFeature.setBorder(new LineBorder(Color.LIGHT_GRAY));
-		panelReceiptFeature.setBackground(new Color(255, 255, 255));
-
-		panelReceiptInfo.add(panelReceiptFeature);
-		panelReceiptFeature.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-
-		JButton btnNewButton_1 = new JButton("");
-		Image iconAdd = new ImageIcon("Assets/Icon/add.png").getImage();
-		iconAdd = iconAdd.getScaledInstance(50, 30, Image.SCALE_SMOOTH);
-		btnNewButton_1.setIcon(new ImageIcon(iconAdd));
-		btnNewButton_1.setPreferredSize(new Dimension(60, 40));
-		panelReceiptFeature.add(btnNewButton_1);
-		
-		JButton btnNewButton_1_1 = new JButton("");
-		Image iconEdit = new ImageIcon("Assets/Icon/edit.png").getImage();
-		iconEdit = iconEdit.getScaledInstance(50, 30, Image.SCALE_SMOOTH);
-		btnNewButton_1_1.setIcon(new ImageIcon(iconEdit));
-		btnNewButton_1_1.setPreferredSize(new Dimension(60, 40));		
-		panelReceiptFeature.add(btnNewButton_1_1);
-		
-		JButton btnNewButton_1_2 = new JButton("");
-		Image iconDelete = new ImageIcon("Assets/Icon/delete.png").getImage();
-		iconDelete = iconDelete.getScaledInstance(50, 30, Image.SCALE_SMOOTH);
-		btnNewButton_1_2.setIcon(new ImageIcon(iconDelete));
-		btnNewButton_1_2.setPreferredSize(new Dimension(60, 40));		
-		panelReceiptFeature.add(btnNewButton_1_2);
-		
-		JButton btnNewButton_1_3 = new JButton("");
-		Image iconRefresh = new ImageIcon("Assets/Icon/clear.png").getImage();
-		iconRefresh = iconRefresh.getScaledInstance(50, 30, Image.SCALE_SMOOTH);
-		btnNewButton_1_3.setIcon(new ImageIcon(iconRefresh));
-		btnNewButton_1_3.setPreferredSize(new Dimension(60, 40));	
-		panelReceiptFeature.add(btnNewButton_1_3);
-		
-		//Receipt details table area
-		JPanel panelReceiptDetailTable = new JPanel();
-		panelReceiptDetailTable.setBorder(new LineBorder(Color.LIGHT_GRAY));
-		GridBagConstraints gbc_panelReceiptDetailTable = new GridBagConstraints();
-		gbc_panelReceiptDetailTable.weighty = 2.0;
-		gbc_panelReceiptDetailTable.weightx = 2.0;
-		gbc_panelReceiptDetailTable.insets = new Insets(5, 0, 5, 5);
-		gbc_panelReceiptDetailTable.fill = GridBagConstraints.BOTH;
-		gbc_panelReceiptDetailTable.gridx = 0;
-		gbc_panelReceiptDetailTable.gridy = 1;
-		add(panelReceiptDetailTable, gbc_panelReceiptDetailTable);
-		GridBagLayout gbl_panelReceiptDetailTable = new GridBagLayout();
-		gbl_panelReceiptDetailTable.columnWidths = new int[]{620, 0, 0};
-		gbl_panelReceiptDetailTable.rowHeights = new int[]{14, 0, 290, 0};
-		gbl_panelReceiptDetailTable.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
-		gbl_panelReceiptDetailTable.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
-		panelReceiptDetailTable.setLayout(gbl_panelReceiptDetailTable);
-		
-		 JLabel lblThngTinPhiu_1_2 = new JLabel("Thông tin chi tiết phiếu nhập");
-		 GridBagConstraints gbc_lblThngTinPhiu_1_2 = new GridBagConstraints();
-		 gbc_lblThngTinPhiu_1_2.gridwidth = 2;
-		 gbc_lblThngTinPhiu_1_2.anchor = GridBagConstraints.NORTH;
-		 gbc_lblThngTinPhiu_1_2.insets = new Insets(0, 0, 5, 5);
-		 gbc_lblThngTinPhiu_1_2.gridx = 0;
-		 gbc_lblThngTinPhiu_1_2.gridy = 0;
-		 panelReceiptDetailTable.add(lblThngTinPhiu_1_2, gbc_lblThngTinPhiu_1_2);
-		 
-		 textField_15 = new JTextField();
-		 GridBagConstraints gbc_textField_15 = new GridBagConstraints();
-		 gbc_textField_15.insets = new Insets(0, 5, 5, 5);
-		 gbc_textField_15.fill = GridBagConstraints.HORIZONTAL;
-		 gbc_textField_15.gridx = 0;
-		 gbc_textField_15.gridy = 1;
-		 panelReceiptDetailTable.add(textField_15, gbc_textField_15);
-		 textField_15.setColumns(10);
-		 
-		 JButton btnNewButton_7 = new JButton("Tìm Kiếm");
-		 GridBagConstraints gbc_btnNewButton_7 = new GridBagConstraints();
-		 gbc_btnNewButton_7.insets = new Insets(0, 0, 5, 5);
-		 gbc_btnNewButton_7.gridx = 1;
-		 gbc_btnNewButton_7.gridy = 1;
-		 panelReceiptDetailTable.add(btnNewButton_7, gbc_btnNewButton_7);
-	     
-		 GridBagConstraints gbc_scrollPaneReceiptDetailTable = new GridBagConstraints();
-		 gbc_scrollPaneReceiptDetailTable.weighty = 1.0;
-		 gbc_scrollPaneReceiptDetailTable.weightx = 1.0;
-		 gbc_scrollPaneReceiptDetailTable.gridwidth = 2;
-		 gbc_scrollPaneReceiptDetailTable.insets = new Insets(0, 5, 0, 5);
-		 gbc_scrollPaneReceiptDetailTable.fill = GridBagConstraints.BOTH;
-		 gbc_scrollPaneReceiptDetailTable.gridx = 0;
-		 gbc_scrollPaneReceiptDetailTable.gridy = 2;		 
-
-		 String[] columnNames1 = {"STT", "Mã CTPN", "Mã PN", "Sản Phẩm", "Số Lượng", "Tổng Tiền", "Chú Thích"};
+	     String[] columnNames1 = {"Mã SP","Tên SP" ,"Loại SP"};
 	     Object[][] data1 = {
-	         {"1", "CTPN001", "PN001", "Sản Phẩm 1", "10", "40.000.000 đ", ""},
-	         {"2", "CTPN002", "PN002", "Sản Phẩm 2", "10", "40.000.000 đ", ""},
+
 	     };
 	     
-	     DefaultTableModel modelDetailReceipt = new DefaultTableModel(data1, columnNames1) {
+	    productModel = new DefaultTableModel(data1, columnNames1) {
 	            @Override
 	            public boolean isCellEditable(int row, int column) {
 	                return false;
 	            }
 	        };
-	     receiptTable = new JTable(modelDetailReceipt);
-	     receiptTable.getTableHeader().setReorderingAllowed(false);
-	     JScrollPane scrollPaneReceiptDetailTable = new JScrollPane(receiptTable);
-		 panelReceiptDetailTable.add(scrollPaneReceiptDetailTable, gbc_scrollPaneReceiptDetailTable);
-		
-		
-		JPanel panelReceiptDetailInfo = new JPanel();
-		panelReceiptDetailInfo.setBorder(new LineBorder(Color.LIGHT_GRAY));
-		GridBagConstraints gbc_panelReceiptDetailInfo = new GridBagConstraints();
-		gbc_panelReceiptDetailInfo.insets = new Insets(5, 5, 10, 10);
-		gbc_panelReceiptDetailInfo.weighty = 1.0;
-		gbc_panelReceiptDetailInfo.weightx = 1.0;
-		gbc_panelReceiptDetailInfo.fill = GridBagConstraints.BOTH;
-		gbc_panelReceiptDetailInfo.gridx = 1;
-		gbc_panelReceiptDetailInfo.gridy = 1;
-		add(panelReceiptDetailInfo, gbc_panelReceiptDetailInfo);
-		panelReceiptDetailInfo.setLayout(new BoxLayout(panelReceiptDetailInfo, BoxLayout.Y_AXIS));
-		
-		JPanel panelReceiptDetailInput = new JPanel();
-		panelReceiptDetailInput.setBackground(new Color(255, 255, 255));
+      table_1 = new JTable(productModel);
+      table_1.getColumnModel().getColumn(0).setPreferredWidth(50);
+      table_1.getColumnModel().getColumn(1).setPreferredWidth(150);
+      table_1.getColumnModel().getColumn(2).setPreferredWidth(100);
+      
+      TableColumnModel columnProductModel = table_1.getColumnModel();
+      columnProductModel.getColumn(0).setCellRenderer(centerRenderer);
+      columnProductModel.getColumn(1).setCellRenderer(centerRenderer);
+      columnProductModel.getColumn(2).setCellRenderer(centerRenderer);
+      table_1.setBorder(new LineBorder(borderColor, 2, false));
+      table_1.getTableHeader().setBorder(new LineBorder(borderColor, 2, false));
+      table_1.getTableHeader().setReorderingAllowed(false);
+      table_1.getTableHeader().setBackground(borderColor);
+      table_1.getTableHeader().setForeground(Color.white);
+      scrollPane_1.setViewportView(table_1);
 
-		panelReceiptDetailInfo.add(panelReceiptDetailInput);
-		GridBagLayout gbl_panelReceiptDetailInput = new GridBagLayout();
-		gbl_panelReceiptDetailInput.columnWidths = new int[]{0, 0, 0};
-		gbl_panelReceiptDetailInput.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_panelReceiptDetailInput.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
-		gbl_panelReceiptDetailInput.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		panelReceiptDetailInput.setLayout(gbl_panelReceiptDetailInput);
-		
-		JLabel lblNewLabel_9 = new JLabel("Thông Tin Chi Tiết Phiếu");
-		GridBagConstraints gbc_lblNewLabel_9 = new GridBagConstraints();
-		gbc_lblNewLabel_9.gridwidth = 2;
-		gbc_lblNewLabel_9.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_9.gridx = 0;
-		gbc_lblNewLabel_9.gridy = 0;
-		panelReceiptDetailInput.add(lblNewLabel_9, gbc_lblNewLabel_9);
-		
-		JLabel lblNewLabel_9_1 = new JLabel("Mã CTPN:");
-		GridBagConstraints gbc_lblNewLabel_9_1 = new GridBagConstraints();
-		gbc_lblNewLabel_9_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_9_1.gridx = 0;
-		gbc_lblNewLabel_9_1.gridy = 1;
-		panelReceiptDetailInput.add(lblNewLabel_9_1, gbc_lblNewLabel_9_1);
-		
-		textField_11 = new JTextField();
-		GridBagConstraints gbc_textField_11 = new GridBagConstraints();
-		gbc_textField_11.insets = new Insets(0, 0, 5, 0);
-		gbc_textField_11.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField_11.gridx = 1;
-		gbc_textField_11.gridy = 1;
-		panelReceiptDetailInput.add(textField_11, gbc_textField_11);
-		textField_11.setColumns(10);
-		
-		JLabel lblNewLabel_9_2 = new JLabel("Mã PN:");
-		GridBagConstraints gbc_lblNewLabel_9_2 = new GridBagConstraints();
-		gbc_lblNewLabel_9_2.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_9_2.gridx = 0;
-		gbc_lblNewLabel_9_2.gridy = 2;
-		panelReceiptDetailInput.add(lblNewLabel_9_2, gbc_lblNewLabel_9_2);
-		
-		textField_12 = new JTextField();
-		textField_12.setColumns(10);
-		GridBagConstraints gbc_textField_12 = new GridBagConstraints();
-		gbc_textField_12.insets = new Insets(0, 0, 5, 0);
-		gbc_textField_12.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField_12.gridx = 1;
-		gbc_textField_12.gridy = 2;
-		panelReceiptDetailInput.add(textField_12, gbc_textField_12);
-		
-		JLabel lblNewLabel_9_3 = new JLabel("Sản Phẩm:");
-		GridBagConstraints gbc_lblNewLabel_9_3 = new GridBagConstraints();
-		gbc_lblNewLabel_9_3.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_9_3.gridx = 0;
-		gbc_lblNewLabel_9_3.gridy = 3;
-		panelReceiptDetailInput.add(lblNewLabel_9_3, gbc_lblNewLabel_9_3);
-		
-		JComboBox comboBox_2 = new JComboBox();
-		GridBagConstraints gbc_comboBox_2 = new GridBagConstraints();
-		gbc_comboBox_2.insets = new Insets(0, 0, 5, 0);
-		gbc_comboBox_2.fill = GridBagConstraints.HORIZONTAL;
-		gbc_comboBox_2.gridx = 1;
-		gbc_comboBox_2.gridy = 3;
-		panelReceiptDetailInput.add(comboBox_2, gbc_comboBox_2);
-		
-		JLabel lblNewLabel_9_4 = new JLabel("Số Lượng:");
-		GridBagConstraints gbc_lblNewLabel_9_4 = new GridBagConstraints();
-		gbc_lblNewLabel_9_4.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_9_4.gridx = 0;
-		gbc_lblNewLabel_9_4.gridy = 4;
-		panelReceiptDetailInput.add(lblNewLabel_9_4, gbc_lblNewLabel_9_4);
-		
-		textField_13 = new JTextField();
-		textField_13.setColumns(10);
-		GridBagConstraints gbc_textField_13 = new GridBagConstraints();
-		gbc_textField_13.insets = new Insets(0, 0, 5, 0);
-		gbc_textField_13.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField_13.gridx = 1;
-		gbc_textField_13.gridy = 4;
-		panelReceiptDetailInput.add(textField_13, gbc_textField_13);
-		
-		JLabel lblNewLabel_9_5 = new JLabel("Tổng Tiền:");
-		GridBagConstraints gbc_lblNewLabel_9_5 = new GridBagConstraints();
-		gbc_lblNewLabel_9_5.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_9_5.gridx = 0;
-		gbc_lblNewLabel_9_5.gridy = 5;
-		panelReceiptDetailInput.add(lblNewLabel_9_5, gbc_lblNewLabel_9_5);
-		
-		textField_14 = new JTextField();
-		textField_14.setColumns(10);
-		GridBagConstraints gbc_textField_14 = new GridBagConstraints();
-		gbc_textField_14.insets = new Insets(0, 0, 5, 0);
-		gbc_textField_14.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField_14.gridx = 1;
-		gbc_textField_14.gridy = 5;
-		panelReceiptDetailInput.add(textField_14, gbc_textField_14);
-		
-		JLabel lblNewLabel_9_6 = new JLabel("Chú Thích:");
-		GridBagConstraints gbc_lblNewLabel_9_6 = new GridBagConstraints();
-		gbc_lblNewLabel_9_6.anchor = GridBagConstraints.NORTH;
-		gbc_lblNewLabel_9_6.insets = new Insets(0, 0, 0, 5);
-		gbc_lblNewLabel_9_6.gridx = 0;
-		gbc_lblNewLabel_9_6.gridy = 6;
-		panelReceiptDetailInput.add(lblNewLabel_9_6, gbc_lblNewLabel_9_6);
-		
-		TextArea textArea_1 = new TextArea();
-		textArea_1.setColumns(1);
-		textArea_1.setRows(5);
-		GridBagConstraints gbc_textArea_1 = new GridBagConstraints();
-		gbc_textArea_1.fill = GridBagConstraints.BOTH;
-		gbc_textArea_1.gridx = 1;
-		gbc_textArea_1.gridy = 6;
-		panelReceiptDetailInput.add(textArea_1, gbc_textArea_1);
-		
-		JPanel panelReceiptDetailFeature = new JPanel();
-		panelReceiptDetailFeature.setBackground(new Color(255, 255, 255));
+	}
+	
+	public void loadDataTable(ArrayList<CategoryDTO> result) {
+		categoryModel.setRowCount(0);
+		for (CategoryDTO c : result) {
+			categoryModel.addRow(new Object[] {
+					c.getCategoryId(), c.getCategoryName()
+			});
+		}
+	}
+	
+	public void loadDataProductTable(ArrayList<ProductDTO> result) {
+		productModel.setRowCount(0);
+		for (ProductDTO p : result) {
+			productModel.addRow(new Object[] {
+					p.getProductId(), p.getProductName(), p.getCategoryName()
+			});
+			System.out.println(p.getProductName());
+		}
+	}
+	
+	  public int getRowSelected() {
+	        int index = table.getSelectedRow();
+	        if (index == -1) {
+	            JOptionPane.showMessageDialog(this, "Vui lòng chọn loại sản phẩm!");
+	        }
+	        return index;
+	    }
+	
 
-		panelReceiptDetailInfo.add(panelReceiptDetailFeature);
-		panelReceiptDetailFeature.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		if (e.getSource() == btnAddCate) {
+            if (Validation.isEmpty(cateNameTxt.getText())) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập tên loại sản phẩm mới");
+            } else {
+                String categoryName = cateNameTxt.getText().trim();                
+                int id = CategoryDAO.getInstance().getAutoIncrement();
+                if (categoryBUS.checkDup(categoryName, id)) {
+                    categoryBUS.add(categoryName);
+                    loadDataTable(listCategory);
+                    cateIdTxt.setText("");
+                    cateNameTxt.setText("");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Loại sản phẩm đã tồn tại !");
+                }
+            }
+        } else if (e.getSource() == btnDeleteCate) {
+            int index = getRowSelected();
+            if (index != -1) {
+            	categoryBUS.delete(listCategory.get(index));
+                loadDataTable(listCategory);
+                cateIdTxt.setText("");
+                cateNameTxt.setText("");
+            }
+        } else if (e.getSource() == btnEditCate) {
+            int index = getRowSelected();
+            if (index != -1) {
+                if (Validation.isEmpty(cateNameTxt.getText())) {
+                    JOptionPane.showMessageDialog(this, "Vui lòng nhập loại sản phẩm mới");
+                } else {
+                    String categoryName = cateNameTxt.getText().trim();             
+                    int id = CategoryDAO.getInstance().getAutoIncrement();                    
+                    if (categoryBUS.checkDup(categoryName, id)) {
+                    	categoryBUS.update(new CategoryDTO(listCategory.get(index).getCategoryId(), categoryName));
+                        loadDataTable(listCategory);
+                        cateIdTxt.setText("");
+                        cateNameTxt.setText("");
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Loại sản phẩm đã tồn tại !");
+                    }
+                }
+            }
+        } else if (e.getSource() == table) {        
+            int index = table.getSelectedRow();
+            cateIdTxt.setText(String.valueOf(listCategory.get(index).getCategoryId()));
+            cateNameTxt.setText(listCategory.get(index).getCategoryName());
+        } else if (e.getSource() == btnRefreshCate) {
+        	loadDataTable(listCategory);
+        	cateIdTxt.setText("");
+            cateNameTxt.setText("");     
+            cateFindTxt.setText("");
+        }
 		
-		JButton btnNewButton_3 = new JButton("");
-		btnNewButton_3.setIcon(new ImageIcon(iconAdd));
-		btnNewButton_3.setPreferredSize(new Dimension(60, 40));	
-		panelReceiptDetailFeature.add(btnNewButton_3);
+	}
 		
-		JButton btnNewButton_2 = new JButton("");
-		btnNewButton_2.setIcon(new ImageIcon(iconEdit));
-		btnNewButton_2.setPreferredSize(new Dimension(60, 40));	
-		panelReceiptDetailFeature.add(btnNewButton_2);
+	
+	public void filterTable(String searchText) {
+	    searchText = searchText.toLowerCase();
+	    ArrayList<CategoryDTO> filteredList = new ArrayList<>();
+
+	    for (CategoryDTO c : listCategory) {
+	        if (c.getCategoryName().toLowerCase().contains(searchText) || String.valueOf(c.getCategoryId()).toLowerCase().contains(searchText)) {
+	            filteredList.add(c);
+	        }
+	    }
+
+	    loadDataTable(filteredList);
+	}
+	
+	public void filterProductTable(String searchText) {
+	    searchText = searchText.toLowerCase();
+	    ArrayList<ProductDTO> filteredList = new ArrayList<>();
+
+	    for (ProductDTO p : listProduct) {
+	        if (p.getProductName().toLowerCase().contains(searchText) || String.valueOf(p.getProductId()).toLowerCase().contains(searchText) 
+	        		&& p.getCategoryName().toLowerCase().contains(searchText)) {
+	            filteredList.add(p);
+	        }
+	    }
+
+	    loadDataProductTable(filteredList);
+	}
+    
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
 		
-		JButton btnNewButton_4 = new JButton("");
-		btnNewButton_4.setIcon(new ImageIcon(iconDelete));
-		btnNewButton_4.setPreferredSize(new Dimension(60, 40));	
-		panelReceiptDetailFeature.add(btnNewButton_4);
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
 		
-		JButton btnNewButton_5 = new JButton("");
-		btnNewButton_5.setIcon(new ImageIcon(iconRefresh));
-		btnNewButton_5.setPreferredSize(new Dimension(60, 40));	
-		panelReceiptDetailFeature.add(btnNewButton_5);
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		// TODO Auto-generated method stub
 
 	}
 
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
+        try {
+            filterTable(cateFindTxt.getText());
+            filterProductTable(textField_3.getText());
+        } catch (Exception  ex) {
+            Logger.getLogger(Category.class.getName()).log(Level.SEVERE, null, ex);
+        }
+		
+	}
 }
